@@ -1,0 +1,53 @@
+---
+title: "Map_Connect"
+author: "Douglas Fernald"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# libraries 
+library(RColorBrewer)
+library(leaflet)
+library(leaflet.extras)
+library(htmltools)
+
+
+# GET DATA ----
+split_geo <- readRDS("split_geo.rds")
+
+# PRE-MAP ----
+
+#set global map options [optional]
+leaflet(options = leafletOptions(minZoom = 0, maxZoom = 18))
+
+# set palette for markers
+pal2 <- colorFactor(
+    palette = 'Paired', #this can be anything from the R Color Brewer package
+    domain = split_geo$sum_pip)
+
+```
+
+``` {r map_simple, echo = FALSE}
+# quick map to test for errors, mislocations
+#circle markers with a zoom reset button
+leaflet(split_geo) %>% 
+    addProviderTiles("Esri.WorldStreetMap") |> 
+    addCircleMarkers(
+        label = ~ practice_id,
+        radius = 7,
+        fillColor = ~pal2(sum_pip),
+        fillOpacity = .70, #some transparency for overlap
+        stroke = T,
+        color ="#FFFFFF",
+        weight = 1,
+        opacity = 1) %>%
+    leaflet.extras::addResetMapButton() |> 
+    addLegend("topleft", pal = pal2, values = ~sum_pip,
+              title = "PIP Footprint",
+              opacity = .8
+    )
+
+
+```
